@@ -1,100 +1,102 @@
-🛡️ YouTube Guardian - Học Toán Để Xem YouTube
-YouTube Guardian là một công cụ Python giúp phụ huynh quản lý thời gian xem YouTube của con trên máy tính Windows. Thay vì cấm đoán hoàn toàn, phần mềm áp dụng cơ chế "Học để được xem tiếp": Khi hết thời gian quy định, màn hình sẽ khóa lại và yêu cầu trẻ giải một bài toán lớp 3 (Cộng, Trừ, Nhân, Chia hoặc Toán lời văn) để mở khóa.
+# 🛡️ YouTube Guardian - Học Toán Để Xem YouTube
 
-✨ Tính năng chính
-⏱️ Giám sát thời gian thực: Tự động phát hiện khi con mở cửa sổ chứa từ khóa (ví dụ: "YouTube", "Hoạt hình") và bắt đầu đếm giờ.
+**YouTube Guardian** là một công cụ Python giúp phụ huynh quản lý thời gian xem YouTube của con trên máy tính Windows. Thay vì cấm đoán hoàn toàn, phần mềm áp dụng cơ chế **"Học để được xem tiếp"**: Khi hết thời gian quy định, màn hình sẽ khóa lại và yêu cầu trẻ giải một bài toán lớp 3 (Cộng, Trừ, Nhân, Chia hoặc Toán lời văn) để mở khóa.
 
-🔒 Khóa màn hình thông minh: Khi hết giờ, ứng dụng hiện màn hình khóa Full-screen, chế độ Topmost (luôn nằm trên cùng) khiến trẻ không thể Alt-Tab.
+## ✨ Tính năng chính
 
-🧠 Ngân hàng câu hỏi động:
+* **⏱️ Giám sát thời gian thực:** Tự động phát hiện khi con mở cửa sổ chứa từ khóa (ví dụ: "YouTube", "Hoạt hình") và bắt đầu đếm giờ.
+* **🔒 Khóa màn hình thông minh:** Khi hết giờ, ứng dụng hiện màn hình khóa Full-screen, chế độ `Topmost` (luôn nằm trên cùng) khiến trẻ không thể Alt-Tab.
+* **🧠 Ngân hàng câu hỏi động:**
+* 50% Toán cơ bản: Cộng, Trừ, Nhân, Chia (trong phạm vi lớp 3).
+* 50% Toán lời văn: Tự sinh đề bài ngẫu nhiên (Dạng toán giải bằng 2 bước tính).
 
-50% Toán cơ bản: Cộng, Trừ, Nhân, Chia (trong phạm vi lớp 3).
 
-50% Toán lời văn: Tự sinh đề bài ngẫu nhiên (Dạng toán giải bằng 2 bước tính).
+* **📝 Nhật ký học tập:** Tự động ghi lại lịch sử (Giờ khóa, Số lần trả lời sai/đúng) vào file `nhat_ky_hoc_tap.txt`.
+* **⚙️ Cấu hình linh hoạt:** Thay đổi thời gian, mật khẩu, từ khóa chặn qua file `config.json` mà không cần sửa code.
+* **🕵️ Chế độ ẩn:** Chạy ngầm (Background), không hiện icon trên Taskbar hay khay hệ thống.
 
-📝 Nhật ký học tập: Tự động ghi lại lịch sử (Giờ khóa, Số lần trả lời sai/đúng) vào file nhat_ky_hoc_tap.txt.
+## 🛠️ Yêu cầu hệ thống & Cài đặt
 
-⚙️ Cấu hình linh hoạt: Thay đổi thời gian, mật khẩu, từ khóa chặn qua file config.json mà không cần sửa code.
+### 1. Yêu cầu
 
-🕵️ Chế độ ẩn: Chạy ngầm (Background), không hiện icon trên Taskbar hay khay hệ thống.
+* Python 3.x
+* Hệ điều hành: Windows
 
-🛠️ Yêu cầu hệ thống & Cài đặt
-1. Yêu cầu
-Python 3.x
+### 2. Cài đặt thư viện
 
-Hệ điều hành: Windows
-
-2. Cài đặt thư viện
 Mở Terminal/CMD và chạy lệnh sau:
 
-Bash
-
+```bash
 pip install pygetwindow pyinstaller
-3. Cấu hình (config.json)
-File config.json phải nằm cùng thư mục với file chạy (.py hoặc .exe).
 
-JSON
+```
 
+### 3. Cấu hình (`config.json`)
+
+File `config.json` phải nằm cùng thư mục với file chạy (`.py` hoặc `.exe`).
+
+```json
 {
     "allowed_time_seconds": 1800,
     "target_keywords": ["YouTube", "YouTube Kids", "Hoạt hình"],
     "parent_passcode": "boeucon",
     "log_filename": "nhat_ky_hoc_tap.txt"
 }
-allowed_time_seconds: Thời gian cho phép xem (tính bằng giây). Ví dụ 1800s = 30 phút.
 
-target_keywords: Danh sách các từ khóa trong tiêu đề cửa sổ sẽ bị tính giờ.
+```
 
-parent_passcode: Mật khẩu dành cho phụ huynh để tắt khẩn cấp (nhập vào ô đáp án).
+* **allowed_time_seconds**: Thời gian cho phép xem (tính bằng giây). Ví dụ 1800s = 30 phút.
+* **target_keywords**: Danh sách các từ khóa trong tiêu đề cửa sổ sẽ bị tính giờ.
+* **parent_passcode**: Mật khẩu dành cho phụ huynh để tắt khẩn cấp (nhập vào ô đáp án).
 
-🚀 Đóng gói ra file .EXE
+## 🚀 Đóng gói ra file .EXE
+
 Để chạy được trên máy con mà không cần cài Python, bạn cần đóng gói dự án:
 
-Mở Terminal tại thư mục dự án.
-
-Chạy lệnh sau (Sử dụng python -m để tránh lỗi đường dẫn):
-
-Bash
-
+1. Mở Terminal tại thư mục dự án.
+2. Chạy lệnh sau (Sử dụng `python -m` để tránh lỗi đường dẫn):
+```bash
 python -m PyInstaller --noconsole --onefile youtube_guardian.py
-Sau khi chạy xong, vào thư mục dist, bạn sẽ thấy file youtube_guardian.exe.
 
-QUAN TRỌNG: Copy file config.json vào đặt cạnh file .exe vừa tạo.
+```
 
-🔄 Thiết lập tự khởi động cùng Windows
+
+3. Sau khi chạy xong, vào thư mục `dist`, bạn sẽ thấy file `youtube_guardian.exe`.
+4. **QUAN TRỌNG:** Copy file `config.json` vào đặt cạnh file `.exe` vừa tạo.
+
+## 🔄 Thiết lập tự khởi động cùng Windows
+
 Để phần mềm tự chạy khi con bật máy:
 
-Nhấn Windows + R, gõ shell:startup và Enter.
+1. Nhấn **Windows + R**, gõ `shell:startup` và Enter.
+2. Tạo **Shortcut** của file `youtube_guardian.exe`.
+3. Kéo Shortcut đó thả vào thư mục Startup vừa mở ra.
 
-Tạo Shortcut của file youtube_guardian.exe.
+## 📖 Hướng dẫn sử dụng
 
-Kéo Shortcut đó thả vào thư mục Startup vừa mở ra.
+### Đối với con:
 
-📖 Hướng dẫn sử dụng
-Đối với con:
-Con mở trình duyệt xem YouTube bình thường.
+1. Con mở trình duyệt xem YouTube bình thường.
+2. Khi hết giờ, màn hình khóa hiện ra.
+3. Con đọc đề bài, nhập đáp án vào ô trống và nhấn **Enter** (hoặc nút Nộp bài).
+4. Nếu đúng: Màn hình mở khóa, đồng hồ reset.
+5. Nếu sai: Phải tính lại.
 
-Khi hết giờ, màn hình khóa hiện ra.
+### Đối với phụ huynh (Admin):
 
-Con đọc đề bài, nhập đáp án vào ô trống và nhấn Enter (hoặc nút Nộp bài).
+* **Kiểm tra nhật ký:** Mở file `nhat_ky_hoc_tap.txt` để xem hôm nay con học thế nào.
+* **Thoát khẩn cấp:** Khi màn hình khóa hiện lên, nhập mật khẩu của bạn (trong config) vào ô đáp án -> Chọn "Yes" để tắt chương trình.
+* **Kiểm tra tiến trình:** Vì app chạy ẩn, hãy mở **Task Manager** -> **Details** -> Tìm `youtube_guardian.exe`.
 
-Nếu đúng: Màn hình mở khóa, đồng hồ reset.
+## ⚠️ Lưu ý
 
-Nếu sai: Phải tính lại.
+* Nếu phần mềm bị trình diệt virus (Windows Defender) chặn, hãy thêm file `.exe` vào danh sách ngoại lệ (Exclusions).
+* Đảm bảo file `config.json` luôn đi kèm với file `.exe`, nếu không phần mềm sẽ chạy với cấu hình mặc định (30 phút, pass: "admin").
 
-Đối với phụ huynh (Admin):
-Kiểm tra nhật ký: Mở file nhat_ky_hoc_tap.txt để xem hôm nay con học thế nào.
+## 🤝 Đóng góp
 
-Thoát khẩn cấp: Khi màn hình khóa hiện lên, nhập mật khẩu của bạn (trong config) vào ô đáp án -> Chọn "Yes" để tắt chương trình.
-
-Kiểm tra tiến trình: Vì app chạy ẩn, hãy mở Task Manager -> Details -> Tìm youtube_guardian.exe.
-
-⚠️ Lưu ý
-Nếu phần mềm bị trình diệt virus (Windows Defender) chặn, hãy thêm file .exe vào danh sách ngoại lệ (Exclusions).
-
-Đảm bảo file config.json luôn đi kèm với file .exe, nếu không phần mềm sẽ chạy với cấu hình mặc định (30 phút, pass: "admin").
-
-🤝 Đóng góp
 Dự án được xây dựng với mục đích cá nhân hóa cho học sinh Lớp 3. Mọi đóng góp về ngân hàng câu hỏi hoặc tối ưu code đều được hoan nghênh!
 
-Made with ❤️ by Dad.
+---
+
+**Made with ❤️ by Dad.**
