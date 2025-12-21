@@ -1,0 +1,6 @@
+{
+    "allowed_time_seconds": 60,
+    "target_keywords": ["YouTube", "YouTube Kids"],
+    "parent_passcode": "boeucon",
+    "log_filename": "nhat_ky_hoc_tap.txt"
+}
