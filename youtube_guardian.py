@@ -129,14 +129,14 @@ class MathLockScreen:
         self.root = tk.Tk()
         self.root.title("Giờ học toán!")
 
-        # Fullscreen và Luôn hiện trên cùng
+        # Cấu hình Fullscreen và Luôn hiện trên cùng
         self.root.attributes('-fullscreen', True)
         self.root.attributes('-topmost', True)
 
-        # Chặn nút tắt
+        # Chặn nút đóng cửa sổ
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
-        # Màu nền Dark Blue
+        # Màu nền dịu mắt
         self.root.configure(bg="#2C3E50")
 
         self.word_gen = WordProblemGenerator()
@@ -157,7 +157,7 @@ class MathLockScreen:
         tk.Label(main_frame, text="Giải bài toán sau để mở khóa:",
                  font=("Arial", 14), fg="#BDC3C7", bg="#2C3E50").pack(pady=5)
 
-        # Label câu hỏi
+        # Label hiển thị câu hỏi
         self.lbl_question = tk.Label(main_frame, text="...", font=("Arial", 40, "bold"),
                                      fg="#F1C40F", bg="#2C3E50", wraplength=0)
         self.lbl_question.pack(pady=30)
@@ -167,16 +167,23 @@ class MathLockScreen:
         self.entry_answer.pack(pady=10)
         self.entry_answer.focus_set()
 
-        # Nút nộp
+        # Nút nộp bài
         tk.Button(main_frame, text="Nộp bài", font=("Arial", 20),
                   bg="#27AE60", fg="white", command=self.check_answer).pack(pady=20)
 
         self.root.bind('<Return>', lambda event: self.check_answer())
 
     def generate_question(self):
-        # 50% Toán thường, 50% Toán lời văn
-        if random.random() > 0.5:
-            # --- Nhánh Toán Cơ Bản ---
+        """
+        Phân chia tỷ lệ:
+        - 25%: Toán cơ bản (+ - * /)
+        - 25%: Toán làm tròn (Hàng chục, Hàng trăm)
+        - 50%: Toán lời văn (2 bước tính)
+        """
+        rand_val = random.random()  # Sinh số từ 0.0 đến 1.0
+
+        if rand_val < 0.25:
+            # === 25% TOÁN CƠ BẢN ===
             self.lbl_question.config(font=("Arial", 40, "bold"), wraplength=0)
 
             type_math = random.choice(['+', '-', '*', '/'])
@@ -209,8 +216,27 @@ class MathLockScreen:
 
             self.lbl_question.config(text=display_text)
 
+        elif rand_val < 0.50:
+            # === 25% TOÁN LÀM TRÒN (Mới) ===
+            # Font chữ vừa phải vì câu hỏi hơi dài
+            self.lbl_question.config(font=("Arial", 30, "bold"), wraplength=900)
+
+            number = random.randint(1000, 9999)  # Số có 4 chữ số như ví dụ của bạn
+            round_type = random.choice(['chuc', 'tram'])
+
+            if round_type == 'chuc':
+                # Làm tròn đến hàng chục (Công thức: (n+5)//10 * 10)
+                self.correct_answer = (number + 5) // 10 * 10
+                display_text = f"Làm tròn số {number}\nđến hàng chục?"
+            else:
+                # Làm tròn đến hàng trăm (Công thức: (n+50)//100 * 100)
+                self.correct_answer = (number + 50) // 100 * 100
+                display_text = f"Làm tròn số {number}\nđến hàng trăm?"
+
+            self.lbl_question.config(text=display_text)
+
         else:
-            # --- Nhánh Toán Lời Văn ---
+            # === 50% TOÁN LỜI VĂN ===
             problem = self.word_gen.generate_two_step_problem()
             self.correct_answer = problem['answer']
 
@@ -218,6 +244,7 @@ class MathLockScreen:
                                      font=("Arial", 22, "bold"),
                                      wraplength=900)
 
+        # Xóa đáp án cũ
         self.entry_answer.delete(0, 'end')
 
     def check_answer(self):
@@ -235,7 +262,7 @@ class MathLockScreen:
         try:
             val = int(user_input)
             if val == self.correct_answer:
-                write_log(f"Con trả lời ĐÚNG. Mở khóa.")
+                write_log(f"Con trả lời ĐÚNG ({self.lbl_question.cget('text').replace(chr(10), ' ')}). Mở khóa.")
                 messagebox.showinfo("Giỏi lắm!", "Chính xác! Con được xem tiếp.")
                 self.root.destroy()
             else:
@@ -250,7 +277,6 @@ class MathLockScreen:
 
     def start(self):
         self.root.mainloop()
-
 
 # ==========================================
 # PHẦN 4: VÒNG LẶP GIÁM SÁT (MAIN LOOP)
