@@ -129,14 +129,10 @@ class MathLockScreen:
         self.root = tk.Tk()
         self.root.title("Giờ học toán!")
 
-        # Cấu hình Fullscreen và Luôn hiện trên cùng
+        # Cấu hình Fullscreen và Topmost
         self.root.attributes('-fullscreen', True)
         self.root.attributes('-topmost', True)
-
-        # Chặn nút đóng cửa sổ
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
-
-        # Màu nền dịu mắt
         self.root.configure(bg="#2C3E50")
 
         self.word_gen = WordProblemGenerator()
@@ -173,17 +169,83 @@ class MathLockScreen:
 
         self.root.bind('<Return>', lambda event: self.check_answer())
 
+    # --- HÀM HỖ TRỢ ĐỔI SỐ RA LA MÃ ---
+    def to_roman(self, num):
+        # Map giá trị cho toán lớp 3 (Thường học đến 100 hoặc 1000)
+        # Trong ảnh bài tập có số L (50), C (100)
+        val = [100, 90, 50, 40, 10, 9, 5, 4, 1]
+        syb = ["C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
+        roman_num = ''
+        i = 0
+        while num > 0:
+            for _ in range(num // val[i]):
+                roman_num += syb[i]
+                num -= val[i]
+            i += 1
+        return roman_num
+
     def generate_question(self):
         """
-        Phân chia tỷ lệ:
-        - 25%: Toán cơ bản (+ - * /)
-        - 25%: Toán làm tròn (Hàng chục, Hàng trăm)
-        - 50%: Toán lời văn (2 bước tính)
+        Phân chia tỷ lệ MỚI:
+        - 10%: Số La Mã (Đọc hiểu & Tính toán)
+        - 20%: Làm tròn số
+        - 20%: Toán cơ bản
+        - 50%: Toán lời văn
         """
-        rand_val = random.random()  # Sinh số từ 0.0 đến 1.0
+        rand_val = random.random()
 
-        if rand_val < 0.25:
-            # === 25% TOÁN CƠ BẢN ===
+        if rand_val < 0.10:
+            # === 10% SỐ LA MÃ (MỚI) ===
+            self.lbl_question.config(font=("Arial", 40, "bold"), wraplength=0)
+
+            # Chọn dạng: 1 là Đổi số, 2 là Tính toán nhỏ (như bài tập trong ảnh)
+            roman_type = random.choice(['convert', 'calc'])
+
+            if roman_type == 'convert':
+                # Ví dụ: XIV = ?
+                val = random.randint(1, 50)  # Phạm vi 1 đến 50
+                roman_str = self.to_roman(val)
+                self.correct_answer = val
+                display_text = f"Số La Mã này giá trị bao nhiêu?\n{roman_str} = ?"
+                self.lbl_question.config(font=("Arial", 30, "bold"))  # Font nhỏ xíu cho vừa
+            else:
+                # Ví dụ: V + IV = ? (Giống bài 2 trong ảnh)
+                # Giới hạn số nhỏ để bé dễ nhẩm
+                op = random.choice(['+', '-'])
+                a = random.randint(1, 20)
+                b = random.randint(1, 10)
+
+                if op == '+':
+                    self.correct_answer = a + b
+                    display_text = f"{self.to_roman(a)} + {self.to_roman(b)} = ?"
+                else:
+                    # Đảm bảo trừ không ra âm
+                    if a < b: a, b = b, a
+                    self.correct_answer = a - b
+                    display_text = f"{self.to_roman(a)} - {self.to_roman(b)} = ?"
+
+            self.lbl_question.config(text=display_text)
+
+        elif rand_val < 0.30:
+            # === 20% TOÁN LÀM TRÒN ===
+            # (Range cũ là 0.25 -> 0.50, giờ là 0.10 -> 0.30 = 20%)
+            self.lbl_question.config(font=("Arial", 30, "bold"), wraplength=900)
+
+            number = random.randint(1000, 9999)
+            round_type = random.choice(['chuc', 'tram'])
+
+            if round_type == 'chuc':
+                self.correct_answer = (number + 5) // 10 * 10
+                display_text = f"Làm tròn số {number}\nđến hàng chục?"
+            else:
+                self.correct_answer = (number + 50) // 100 * 100
+                display_text = f"Làm tròn số {number}\nđến hàng trăm?"
+
+            self.lbl_question.config(text=display_text)
+
+        elif rand_val < 0.50:
+            # === 20% TOÁN CƠ BẢN ===
+            # (Range cũ là 0 -> 0.25, giờ là 0.30 -> 0.50 = 20%)
             self.lbl_question.config(font=("Arial", 40, "bold"), wraplength=0)
 
             type_math = random.choice(['+', '-', '*', '/'])
@@ -216,25 +278,6 @@ class MathLockScreen:
 
             self.lbl_question.config(text=display_text)
 
-        elif rand_val < 0.50:
-            # === 25% TOÁN LÀM TRÒN (Mới) ===
-            # Font chữ vừa phải vì câu hỏi hơi dài
-            self.lbl_question.config(font=("Arial", 30, "bold"), wraplength=900)
-
-            number = random.randint(1000, 9999)  # Số có 4 chữ số như ví dụ của bạn
-            round_type = random.choice(['chuc', 'tram'])
-
-            if round_type == 'chuc':
-                # Làm tròn đến hàng chục (Công thức: (n+5)//10 * 10)
-                self.correct_answer = (number + 5) // 10 * 10
-                display_text = f"Làm tròn số {number}\nđến hàng chục?"
-            else:
-                # Làm tròn đến hàng trăm (Công thức: (n+50)//100 * 100)
-                self.correct_answer = (number + 50) // 100 * 100
-                display_text = f"Làm tròn số {number}\nđến hàng trăm?"
-
-            self.lbl_question.config(text=display_text)
-
         else:
             # === 50% TOÁN LỜI VĂN ===
             problem = self.word_gen.generate_two_step_problem()
@@ -244,13 +287,13 @@ class MathLockScreen:
                                      font=("Arial", 22, "bold"),
                                      wraplength=900)
 
-        # Xóa đáp án cũ
+        # Reset ô nhập liệu
         self.entry_answer.delete(0, 'end')
 
     def check_answer(self):
         user_input = self.entry_answer.get()
 
-        # Check mật khẩu Admin
+        # Backdoor Admin
         if user_input == config.get("parent_passcode", "admin"):
             if messagebox.askyesno("Admin", "Bố muốn tắt chương trình giám sát không?"):
                 write_log("Phụ huynh đã tắt chương trình thủ công.")
@@ -262,22 +305,24 @@ class MathLockScreen:
         try:
             val = int(user_input)
             if val == self.correct_answer:
-                write_log(f"Con trả lời ĐÚNG ({self.lbl_question.cget('text').replace(chr(10), ' ')}). Mở khóa.")
+                # Ghi log kèm nội dung câu hỏi để bố kiểm tra con làm bài gì
+                q_text = self.lbl_question.cget('text').replace('\n', ' ')
+                write_log(f"ĐÚNG. Câu: '{q_text}' - Đáp án: {val}")
+
                 messagebox.showinfo("Giỏi lắm!", "Chính xác! Con được xem tiếp.")
                 self.root.destroy()
             else:
-                write_log(f"Con trả lời SAI. Nhập: {val} - Đáp án: {self.correct_answer}")
+                write_log(f"SAI. Nhập: {val} - Đáp án đúng: {self.correct_answer}")
                 messagebox.showwarning("Sai rồi", "Thử tính lại xem nào!")
                 self.entry_answer.delete(0, 'end')
         except ValueError:
-            messagebox.showwarning("Lỗi", "Con phải nhập số nhé!")
+            messagebox.showwarning("Lỗi", "Con phải nhập số nhé (1, 2, 3...)!")
 
     def on_closing(self):
         messagebox.showwarning("Không được!", "Hãy giải toán để mở khóa!")
 
     def start(self):
         self.root.mainloop()
-
 # ==========================================
 # PHẦN 4: VÒNG LẶP GIÁM SÁT (MAIN LOOP)
 # ==========================================
