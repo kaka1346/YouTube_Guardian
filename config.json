@@ -2,5 +2,12 @@
     "allowed_time_seconds": 60,
     "target_keywords": ["YouTube", "YouTube Kids"],
     "parent_passcode": "boeucon",
-    "log_filename": "nhat_ky_hoc_tap.txt"
+    "log_filename": "nhat_ky_hoc_tap.txt",
+    "problem_ratios": {
+        "basic": 0,
+        "round": 0,
+        "roman": 0,
+        "geometry": 100,
+        "word_problem": 0
+    }
 }
