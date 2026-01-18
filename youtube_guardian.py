@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime
 
 
 # ==========================================
@@ -61,7 +62,7 @@ def get_app_path():
 APP_PATH = get_app_path()
 CONFIG_PATH = os.path.join(APP_PATH, "config.json")
 
-# Cấu hình mặc định (Phòng trường hợp file lỗi)
+# Cấu hình mặc định
 DEFAULT_CONFIG = {
     "allowed_time_seconds": 1800,
     "target_keywords": ["YouTube"],
@@ -83,15 +84,33 @@ def load_config():
 
 
 config = load_config()
-LOG_PATH = os.path.join(APP_PATH, config.get("log_filename", "nhat_ky_hoc_tap.txt"))
 
-logging.basicConfig(
-    filename=LOG_PATH,
-    level=logging.INFO,
-    format='%(asctime)s - %(message)s',
-    datefmt='%d/%m/%Y %H:%M:%S',
-    encoding='utf-8'
-)
+
+# Thiết lập logging theo ngày
+def setup_daily_logging():
+    log_dir = os.path.join(APP_PATH, "logs")
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    log_filename = f"nhat_ky_{current_date}.txt"
+    log_path = os.path.join(log_dir, log_filename)
+
+    root_logger = logging.getLogger()
+    if root_logger.hasHandlers():
+        root_logger.handlers.clear()
+
+    logging.basicConfig(
+        filename=log_path,
+        level=logging.INFO,
+        format='%(asctime)s - %(message)s',
+        datefmt='%d/%m/%Y %H:%M:%S',
+        encoding='utf-8'
+    )
+    return log_path
+
+
+LOG_PATH = setup_daily_logging()
 
 
 def write_log(message):
@@ -132,9 +151,16 @@ class MathLockScreen:
         tk.Label(main_frame, text="Giải bài toán sau để mở khóa:",
                  font=("Arial", 14), fg="#BDC3C7", bg="#2C3E50").pack(pady=5)
 
+        # Label câu hỏi
         self.lbl_question = tk.Label(main_frame, text="...", font=("Arial", 40, "bold"),
                                      fg="#F1C40F", bg="#2C3E50", wraplength=0)
-        self.lbl_question.pack(pady=30)
+        self.lbl_question.pack(pady=20)
+
+        # --- MỚI: Label Gợi ý / Lý thuyết ---
+        self.lbl_hint = tk.Label(main_frame, text="", font=("Arial", 16, "italic"),
+                                 fg="#00FFFF", bg="#2C3E50", wraplength=900)
+        self.lbl_hint.pack(pady=10)
+        # ------------------------------------
 
         self.entry_answer = tk.Entry(main_frame, font=("Arial", 30), justify='center')
         self.entry_answer.pack(pady=10)
@@ -157,69 +183,78 @@ class MathLockScreen:
         return roman_num
 
     def generate_question(self):
-        """
-        Logic chọn đề bài dựa trên tỉ lệ trong config.json
-        """
-        # 1. Lấy tỉ lệ từ config
+        # Reset gợi ý mặc định
+        self.lbl_hint.config(text="")
+
         ratios = config.get("problem_ratios", {})
 
-        # Danh sách các dạng bài hỗ trợ
-        # basic: Cộng trừ nhân chia
-        # round: Làm tròn số
-        # roman: Số La Mã
-        # geometry: Hình học (Chu vi, Diện tích)
-        # word_problem: Toán lời văn
-
-        # Nếu config chưa có key nào thì set mặc định 0
         w_basic = ratios.get("basic", 0)
         w_round = ratios.get("round", 0)
         w_roman = ratios.get("roman", 0)
         w_geo = ratios.get("geometry", 0)
         w_word = ratios.get("word_problem", 0)
 
-        # Kiểm tra nếu tất cả bằng 0 thì ép về toán cơ bản
         if sum([w_basic, w_round, w_roman, w_geo, w_word]) == 0:
             w_basic = 100
 
-        # Chọn dạng bài dựa trên trọng số (weights)
         choices = ['basic', 'round', 'roman', 'geometry', 'word_problem']
         weights = [w_basic, w_round, w_roman, w_geo, w_word]
 
         selected_type = random.choices(choices, weights=weights, k=1)[0]
 
-        # --- XỬ LÝ RA ĐỀ THEO DẠNG ĐÃ CHỌN ---
-
         if selected_type == 'geometry':
             # === DẠNG HÌNH HỌC (CHU VI - DIỆN TÍCH) ===
             self.lbl_question.config(font=("Arial", 30, "bold"), wraplength=900)
 
-            shape = random.choice(['square', 'rect'])  # Vuông hoặc Chữ nhật
-            task = random.choice(['chu_vi', 'dien_tich'])  # Tính gì?
+            # Thêm 'triangle' vào danh sách hình
+            shape = random.choice(['square', 'rect', 'triangle'])
 
-            if shape == 'square':
-                # HÌNH VUÔNG (Cạnh a)
-                a = random.randint(2, 10)  # Cạnh nhỏ để tính diện tích cho dễ
+            # Tam giác chỉ tính Chu vi (lớp 3 chưa học diện tích tam giác phức tạp)
+            if shape == 'triangle':
+                task = 'chu_vi'
+            else:
+                task = random.choice(['chu_vi', 'dien_tich'])
+
+            if shape == 'square':  # Hình vuông
+                a = random.randint(2, 10)
                 if task == 'chu_vi':
                     self.correct_answer = a * 4
                     display_text = f"Hình vuông cạnh {a}.\nTính CHU VI?"
+                    #self.lbl_hint.config(text="💡 Gợi ý: Chu vi hình vuông = Cạnh x 4")
                 else:
                     self.correct_answer = a * a
                     display_text = f"Hình vuông cạnh {a}.\nTính DIỆN TÍCH?"
-            else:
-                # HÌNH CHỮ NHẬT (Dài d, Rộng r)
+                    #self.lbl_hint.config(text="💡 Gợi ý: Diện tích hình vuông = Cạnh x Cạnh")
+
+            elif shape == 'rect':  # Hình chữ nhật
                 r = random.randint(2, 9)
-                d = random.randint(r + 1, 15)  # Dài phải lớn hơn Rộng
+                d = random.randint(r + 1, 15)
                 if task == 'chu_vi':
                     self.correct_answer = (d + r) * 2
-                    display_text = f"HCN dài {d}, rộng {r}.\nTính CHU VI?"
+                    display_text = f"Hình chữ nhật dài {d}, rộng {r}.\nTính CHU VI?"
+                    #self.lbl_hint.config(text="💡 Gợi ý: Chu vi Hình chữ nhật = (Dài + Rộng) x 2")
                 else:
                     self.correct_answer = d * r
-                    display_text = f"HCN dài {d}, rộng {r}.\nTính DIỆN TÍCH?"
+                    display_text = f"Hình chữ nhật dài {d}, rộng {r}.\nTính DIỆN TÍCH?"
+                    #self.lbl_hint.config(text="💡 Gợi ý: Diện tích Hình chữ nhật = Dài x Rộng")
+
+            elif shape == 'triangle':  # Hình tam giác (MỚI)
+                # Tạo 3 cạnh ngẫu nhiên (đảm bảo tạo thành tam giác được)
+                a = random.randint(3, 15)
+                b = random.randint(3, 15)
+                # Tổng 2 cạnh phải lớn hơn cạnh còn lại
+                min_c = abs(a - b) + 1
+                max_c = a + b - 1
+                c = random.randint(min_c, max_c)
+
+                self.correct_answer = a + b + c
+                display_text = f"Tam giác có 3 cạnh: {a}, {b}, {c}.\nTính CHU VI?"
+                # Cập nhật gợi ý khái niệm
+                self.lbl_hint.config(text="💡 Gợi ý: Chu vi là tổng độ dài các cạnh cộng lại.")
 
             self.lbl_question.config(text=display_text)
 
         elif selected_type == 'roman':
-            # === DẠNG SỐ LA MÃ ===
             self.lbl_question.config(font=("Arial", 40, "bold"), wraplength=0)
             roman_sub_type = random.choice(['convert', 'calc'])
             if roman_sub_type == 'convert':
@@ -240,7 +275,6 @@ class MathLockScreen:
                     self.lbl_question.config(text=f"{self.to_roman(a)} - {self.to_roman(b)} = ?")
 
         elif selected_type == 'round':
-            # === DẠNG LÀM TRÒN ===
             self.lbl_question.config(font=("Arial", 30, "bold"), wraplength=900)
             number = random.randint(1000, 9999)
             round_target = random.choice(['chuc', 'tram'])
@@ -252,13 +286,11 @@ class MathLockScreen:
                 self.lbl_question.config(text=f"Làm tròn số {number}\nđến hàng trăm?")
 
         elif selected_type == 'word_problem':
-            # === DẠNG TOÁN LỜI VĂN ===
             problem = self.word_gen.generate_two_step_problem()
             self.correct_answer = problem['answer']
             self.lbl_question.config(text=problem['question'], font=("Arial", 22, "bold"), wraplength=900)
 
-        else:  # selected_type == 'basic'
-            # === DẠNG CƠ BẢN (+ - * /) ===
+        else:  # basic
             self.lbl_question.config(font=("Arial", 40, "bold"), wraplength=0)
             type_math = random.choice(['+', '-', '*', '/'])
             if type_math == '+':
@@ -344,7 +376,9 @@ def monitor_activity():
                         app.start()
 
                         watch_time = 0
-                        config = load_config()  # Reload config sau khi mở khóa
+                        config = load_config()
+                        setup_daily_logging()
+
                         allowed_time = config.get("allowed_time_seconds", 1800)
                         keywords = config.get("target_keywords", ["YouTube"])
                         write_log(f"Reset đồng hồ. Giới hạn: {allowed_time}s")

@@ -1,101 +1,111 @@
 # 🛡️ YouTube Guardian - Học Toán Để Xem YouTube
 
-**YouTube Guardian** là một công cụ Python giúp phụ huynh quản lý thời gian xem YouTube của con trên máy tính Windows. Thay vì cấm đoán hoàn toàn, phần mềm áp dụng cơ chế **"Học để được xem tiếp"**: Khi hết thời gian quy định, màn hình sẽ khóa lại và yêu cầu trẻ giải một bài toán lớp 3 (Cộng, Trừ, Nhân, Chia hoặc Toán lời văn) để mở khóa.
+**YouTube Guardian** là một công cụ Python giúp phụ huynh quản lý thời gian xem YouTube của con trên máy tính Windows. Phần mềm áp dụng cơ chế **"Học để được xem tiếp"**: Khi hết thời gian quy định, màn hình sẽ khóa lại và yêu cầu trẻ giải toán để mở khóa.
 
-## ✨ Tính năng chính
+> **Phiên bản mới:** Hỗ trợ tùy chỉnh tỉ lệ các dạng toán và tách file nhật ký theo ngày.
 
-* **⏱️ Giám sát thời gian thực:** Tự động phát hiện khi con mở cửa sổ chứa từ khóa (ví dụ: "YouTube", "Hoạt hình") và bắt đầu đếm giờ.
-* **🔒 Khóa màn hình thông minh:** Khi hết giờ, ứng dụng hiện màn hình khóa Full-screen, chế độ `Topmost` (luôn nằm trên cùng) khiến trẻ không thể Alt-Tab.
-* **🧠 Ngân hàng câu hỏi động:**
-* 50% Toán cơ bản: Cộng, Trừ, Nhân, Chia (trong phạm vi lớp 3).
-* 50% Toán lời văn: Tự sinh đề bài ngẫu nhiên (Dạng toán giải bằng 2 bước tính).
+## ✨ Tính năng nổi bật
+
+* **⏱️ Giám sát thông minh:** Tự động đếm giờ khi con mở các cửa sổ chứa từ khóa (ví dụ: "YouTube", "Hoạt hình").
+* **🔒 Khóa màn hình tuyệt đối:** Chế độ Full-screen và Topmost khiến trẻ không thể tắt hay chuyển tab khi hết giờ.
+* **📚 Ngân hàng câu hỏi đa dạng (Lớp 3):**
+* **Toán cơ bản:** Cộng, Trừ, Nhân, Chia.
+* **Toán lời văn:** Tự sinh đề bài ngẫu nhiên (Dạng toán giải bằng 2 bước tính).
+* **Làm tròn số:** Làm tròn đến hàng chục, hàng trăm.
+* **Số La Mã:** Đổi số sang La Mã và tính toán cộng trừ đơn giản.
+* **Hình học (Mới):** Tính Chu vi & Diện tích Hình vuông, Hình chữ nhật, chu vi hình tam giác
 
 
-* **📝 Nhật ký học tập:** Tự động ghi lại lịch sử (Giờ khóa, Số lần trả lời sai/đúng) vào file `nhat_ky_hoc_tap.txt`.
-* **⚙️ Cấu hình linh hoạt:** Thay đổi thời gian, mật khẩu, từ khóa chặn qua file `config.json` mà không cần sửa code.
-* **🕵️ Chế độ ẩn:** Chạy ngầm (Background), không hiện icon trên Taskbar hay khay hệ thống.
+* **🎛️ Tùy chỉnh tỉ lệ đề bài:** Phụ huynh có thể cài đặt muốn con làm 100% hình học hoặc 50% toán lời văn thông qua file cấu hình.
+* **📝 Nhật ký chi tiết:** Tự động tạo thư mục `logs` và lưu file nhật ký riêng cho từng ngày (Ví dụ: `nhat_ky_2024-01-15.txt`).
+* **🕵️ Chế độ ẩn:** Chạy ngầm (Background), không hiện icon gây mất tập trung.
 
-## 🛠️ Yêu cầu hệ thống & Cài đặt
+## 🛠️ Cài đặt & Cấu hình
 
-### 1. Yêu cầu
+### 1. Yêu cầu hệ thống
 
 * Python 3.x
-* Hệ điều hành: Windows
-
-### 2. Cài đặt thư viện
-
-Mở Terminal/CMD và chạy lệnh sau:
-
+* Thư viện hỗ trợ:
 ```bash
 pip install pygetwindow pyinstaller
 
 ```
 
-### 3. Cấu hình (`config.json`)
 
-File `config.json` phải nằm cùng thư mục với file chạy (`.py` hoặc `.exe`).
+
+### 2. File cấu hình (`config.json`)
+
+File này **BẮT BUỘC** phải nằm cùng thư mục với file `.exe` hoặc file code.
 
 ```json
 {
     "allowed_time_seconds": 1800,
     "target_keywords": ["YouTube", "YouTube Kids", "Hoạt hình"],
     "parent_passcode": "boeucon",
-    "log_filename": "nhat_ky_hoc_tap.txt"
+    "problem_ratios": {
+        "basic": 20,
+        "round": 20,
+        "roman": 10,
+        "geometry": 50,
+        "word_problem": 0
+    }
 }
 
 ```
 
-* **allowed_time_seconds**: Thời gian cho phép xem (tính bằng giây). Ví dụ 1800s = 30 phút.
-* **target_keywords**: Danh sách các từ khóa trong tiêu đề cửa sổ sẽ bị tính giờ.
-* **parent_passcode**: Mật khẩu dành cho phụ huynh để tắt khẩn cấp (nhập vào ô đáp án).
+**Giải thích tham số:**
 
-## 🚀 Đóng gói ra file .EXE
+* `allowed_time_seconds`: Thời gian xem cho phép (giây). 1800s = 30 phút.
+* `parent_passcode`: Mật khẩu để bố/mẹ tắt nóng chương trình (nhập vào ô đáp án).
+* **`problem_ratios` (Tỉ lệ dạng bài):** Bạn điền trọng số cho từng dạng.
+* `basic`: Cộng trừ nhân chia thường.
+* `round`: Làm tròn số.
+* `roman`: Số La Mã.
+* `geometry`: Hình học (Chu vi/Diện tích).
+* `word_problem`: Toán lời văn.
+* *Mẹo:* Nếu muốn con ôn tập trung dạng nào, hãy để số đó là 100 và các số khác là 0.
 
-Để chạy được trên máy con mà không cần cài Python, bạn cần đóng gói dự án:
+
+
+## 🚀 Hướng dẫn đóng gói (.EXE)
+
+Để chạy trên máy con mà không cần cài Python:
 
 1. Mở Terminal tại thư mục dự án.
-2. Chạy lệnh sau (Sử dụng `python -m` để tránh lỗi đường dẫn):
+2. Chạy lệnh build (lệnh này giúp sửa lỗi đường dẫn Windows):
 ```bash
 python -m PyInstaller --noconsole --onefile youtube_guardian.py
 
 ```
 
 
-3. Sau khi chạy xong, vào thư mục `dist`, bạn sẽ thấy file `youtube_guardian.exe`.
-4. **QUAN TRỌNG:** Copy file `config.json` vào đặt cạnh file `.exe` vừa tạo.
+3. Vào thư mục `dist`, lấy file `youtube_guardian.exe`.
+4. **QUAN TRỌNG:** Tạo một thư mục mới, copy **cả 2 file** sau vào đó:
+* `youtube_guardian.exe`
+* `config.json`
 
-## 🔄 Thiết lập tự khởi động cùng Windows
 
-Để phần mềm tự chạy khi con bật máy:
-
-1. Nhấn **Windows + R**, gõ `shell:startup` và Enter.
-2. Tạo **Shortcut** của file `youtube_guardian.exe`.
-3. Kéo Shortcut đó thả vào thư mục Startup vừa mở ra.
 
 ## 📖 Hướng dẫn sử dụng
 
-### Đối với con:
+### Cho con:
 
-1. Con mở trình duyệt xem YouTube bình thường.
-2. Khi hết giờ, màn hình khóa hiện ra.
-3. Con đọc đề bài, nhập đáp án vào ô trống và nhấn **Enter** (hoặc nút Nộp bài).
-4. Nếu đúng: Màn hình mở khóa, đồng hồ reset.
-5. Nếu sai: Phải tính lại.
+1. Con xem YouTube bình thường.
+2. Hết giờ -> Màn hình khóa hiện ra kèm bài toán.
+3. Con giải đúng -> Màn hình mở, đồng hồ reset.
+4. Con giải sai -> Phải tính lại.
 
-### Đối với phụ huynh (Admin):
+### Cho bố mẹ (Admin):
 
-* **Kiểm tra nhật ký:** Mở file `nhat_ky_hoc_tap.txt` để xem hôm nay con học thế nào.
-* **Thoát khẩn cấp:** Khi màn hình khóa hiện lên, nhập mật khẩu của bạn (trong config) vào ô đáp án -> Chọn "Yes" để tắt chương trình.
-* **Kiểm tra tiến trình:** Vì app chạy ẩn, hãy mở **Task Manager** -> **Details** -> Tìm `youtube_guardian.exe`.
+* **Xem nhật ký:** Vào thư mục `logs` (nằm cạnh file exe), mở file theo ngày tương ứng để xem con làm bài đúng hay sai, vào lúc mấy giờ.
+* **Tắt khẩn cấp:** Khi màn hình khóa hiện lên, nhập `parent_passcode` vào ô đáp án -> Chọn Yes.
+* **Kiểm tra chương trình:** Mở **Task Manager** -> Tab **Details** -> Tìm `youtube_guardian.exe`.
 
-## ⚠️ Lưu ý
+## 🔄 Cách thiết lập tự khởi động
 
-* Nếu phần mềm bị trình diệt virus (Windows Defender) chặn, hãy thêm file `.exe` vào danh sách ngoại lệ (Exclusions).
-* Đảm bảo file `config.json` luôn đi kèm với file `.exe`, nếu không phần mềm sẽ chạy với cấu hình mặc định (30 phút, pass: "admin").
-
-## 🤝 Đóng góp
-
-Dự án được xây dựng với mục đích cá nhân hóa cho học sinh Lớp 3. Mọi đóng góp về ngân hàng câu hỏi hoặc tối ưu code đều được hoan nghênh!
+1. Nhấn **Windows + R**, gõ `shell:startup` và Enter.
+2. Tạo **Shortcut** của file `.exe`.
+3. Kéo Shortcut đó vào thư mục Startup vừa mở.
 
 ---
 
